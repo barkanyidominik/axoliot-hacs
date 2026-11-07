@@ -3,7 +3,7 @@
 Saját Home Assistant kiegészítések egyetlen HACS-integrációban (`axoliot`).
 
 ## Telepítés
-1. HACS → ⋮ → Egyéni tárolók → ennek a repónak az URL-je, kategória: Integráció (privát repóhoz a HACS-ben GitHub-token kell).
+1. HACS → ⋮ → Egyéni tárolók → ennek a repónak az URL-je, kategória: Integráció.
 2. Letöltés, HA újraindítás.
 3. Beállítások → Eszközök és szolgáltatások → Integráció hozzáadása → **Axoliot**.
 
