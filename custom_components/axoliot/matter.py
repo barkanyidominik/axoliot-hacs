@@ -39,6 +39,12 @@ READ_SCHEMA = vol.Schema(
         vol.Optional("cluster"): vol.All(vol.Coerce(int), vol.Range(min=0)),
     }
 )
+READ_LIVE_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): cv.string,
+        vol.Optional("attribute_path", default="*/*/*"): vol.Match(r"^(d+|*)/(d+|*)/(d+|*)$"),
+    }
+)
 WRITE_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): cv.string,
@@ -46,6 +52,19 @@ WRITE_SCHEMA = vol.Schema(
         vol.Required("value"): object,
     }
 )
+
+
+def _jsonable(value: Any) -> Any:
+    """Bináris és egyéb nem JSON-barát értékek átalakítása a válaszhoz."""
+    if isinstance(value, (bytes, bytearray)):
+        return bytes(value).hex()
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
 
 
 def _resolve(hass: HomeAssistant, device_id: str):
@@ -98,6 +117,28 @@ def async_register_services(hass: HomeAssistant) -> None:
         }
         return {"node_id": node.node_id, "attributes": attrs}
 
+    async def read_live(call: ServiceCall) -> dict[str, Any]:
+        """Élő olvasás a Matter szerverről (wildcard), a gyorsítótárat megkerülve."""
+        client, node = _resolve(hass, call.data["device_id"])
+        path = call.data["attribute_path"]
+        try:
+            result = await client.read_attribute(node.node_id, path)
+        except Exception as err:
+            # Egyes szerververziók nem fogadják el a végpont-wildcardot: végpontonként újra.
+            if not path.startswith("*"):
+                raise HomeAssistantError(f"Élő olvasás sikertelen: {err}") from err
+            _LOGGER.debug("Wildcard olvasás hibás (%s), végpontonként próbálom", err)
+            result = {}
+            rest = path.split("/", 1)[1]
+            for endpoint_id in node.endpoints:
+                try:
+                    result.update(
+                        await client.read_attribute(node.node_id, f"{endpoint_id}/{rest}")
+                    )
+                except Exception as ep_err:
+                    result[f"{endpoint_id}/error"] = str(ep_err)
+        return {"node_id": node.node_id, "attributes": _jsonable(result)}
+
     async def write_attribute(call: ServiceCall) -> None:
         client, node = _resolve(hass, call.data["device_id"])
         try:
@@ -117,6 +158,13 @@ def async_register_services(hass: HomeAssistant) -> None:
         schema=READ_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        DOMAIN,
+        "read_live",
+        read_live,
+        schema=READ_LIVE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
     hass.services.async_register(DOMAIN, "write_attribute", write_attribute, schema=WRITE_SCHEMA)
 
 
@@ -124,5 +172,5 @@ def async_register_services(hass: HomeAssistant) -> None:
 
 def async_remove_services(hass: HomeAssistant) -> None:
     """Matter szolgáltatások eltávolítása."""
-    for service in ("timed_on", "read_attributes", "write_attribute"):
+    for service in ("timed_on", "read_attributes", "read_live", "write_attribute"):
         hass.services.async_remove(DOMAIN, service)

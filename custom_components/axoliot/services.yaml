@@ -59,3 +59,17 @@ write_attribute:
       required: true
       selector:
         object:
+
+read_live:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: matter
+    attribute_path:
+      description: Élő olvasás wildcarddal (endpoint/cluster/attribútum). Alapértelmezés minden attribútum.
+      default: "*/*/*"
+      example: "1/*/*"
+      selector:
+        text:
