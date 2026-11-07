@@ -42,7 +42,9 @@ READ_SCHEMA = vol.Schema(
 READ_LIVE_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): cv.string,
-        vol.Optional("attribute_path", default="*/*/*"): vol.Match(r"^(d+|*)/(d+|*)/(d+|*)$"),
+        vol.Optional("attribute_path", default="*/*/*"): vol.Match(
+            r"^(\d+|\*)/(\d+|\*)/(\d+|\*)$"
+        ),
     }
 )
 WRITE_SCHEMA = vol.Schema(
