@@ -1,0 +1,61 @@
+timed_on:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: matter
+    on_time:
+      required: true
+      default: 60
+      selector:
+        number:
+          min: 1
+          max: 6500
+          unit_of_measurement: s
+    off_wait_time:
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 6500
+          unit_of_measurement: s
+    endpoint:
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 255
+          mode: box
+
+read_attributes:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: matter
+    cluster:
+      description: Cluster ID (pl. 6 = On/Off). Üresen hagyva minden attribútumot visszaad.
+      selector:
+        number:
+          min: 0
+          max: 4294967295
+          mode: box
+
+write_attribute:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: matter
+    attribute_path:
+      required: true
+      example: "1/6/16387"
+      selector:
+        text:
+    value:
+      required: true
+      selector:
+        object:

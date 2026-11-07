@@ -1,0 +1,3 @@
+"""Axoliot konstansok."""
+
+DOMAIN = "axoliot"
