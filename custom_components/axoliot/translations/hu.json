@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Axoliot",
+        "description": "Regisztrálja az Axoliot szolgáltatásokat (Matter: időzített bekapcsolás, attribútum olvasás/írás). A modulok később az integráció opcióiban állíthatók be."
+      }
+    },
+    "abort": { "already_configured": "Az Axoliot már be van állítva." }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Axoliot modulok",
+        "description": "Melegvíz-hőszivattyú COP: fűtési ciklusonként a leadott hő (tartály hőmérséklet-emelkedése × térfogat) osztva a felvett árammal. Az energiaszenzoroknak periódusonként (pl. 2 óránként) egy értéket kell küldeniük.",
+        "data": {
+          "dhw_cop_enabled": "Melegvíz-hőszivattyú COP szenzorok bekapcsolása",
+          "dhw_temperature_entity": "Tartály hőmérséklete (vízmelegítő vagy hőmérséklet szenzor)",
+          "dhw_hp_energy_entity": "Hőszivattyú fogyasztása periódusonként (kWh)",
+          "dhw_resistor_energy_entity": "Fűtőszál fogyasztása periódusonként (kWh, opcionális)",
+          "dhw_outdoor_temperature_entity": "Külső / beszívott levegő hőmérséklete (opcionális)",
+          "dhw_tank_volume": "Tartály térfogata"
+        }
+      }
+    },
+    "error": {
+      "dhw_missing_entities": "A tartály hőmérséklete és a hőszivattyú fogyasztása kötelező."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "dhw_cop": { "name": "COP" },
+      "dhw_cycle_outdoor_avg": { "name": "Ciklus külső átlag" }
+    }
+  }
+}
