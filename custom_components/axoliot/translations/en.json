@@ -1,6 +1,36 @@
 {
   "config": {
-    "step": { "user": { "title": "Axoliot", "description": "Registers the Axoliot services (Matter: timed on, read/write attribute)." } },
+    "step": {
+      "user": {
+        "title": "Axoliot",
+        "description": "Registers the Axoliot services (Matter: timed on, read/write attribute). Modules can be configured later in the integration options."
+      }
+    },
     "abort": { "already_configured": "Axoliot is already set up." }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Axoliot modules",
+        "description": "Domestic hot water heat pump COP: per heating cycle, heat delivered (tank temperature rise × volume) divided by the electricity used. The energy sensors must report one value per period (e.g. every 2 hours).",
+        "data": {
+          "dhw_cop_enabled": "Enable DHW heat pump COP sensors",
+          "dhw_temperature_entity": "Tank temperature (water heater or temperature sensor)",
+          "dhw_hp_energy_entity": "Heat pump energy per period (kWh)",
+          "dhw_resistor_energy_entity": "Resistor energy per period (kWh, optional)",
+          "dhw_outdoor_temperature_entity": "Outdoor / intake air temperature (optional)",
+          "dhw_tank_volume": "Tank volume"
+        }
+      }
+    },
+    "error": {
+      "dhw_missing_entities": "The tank temperature and the heat pump energy entities are required."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "dhw_cop": { "name": "COP" },
+      "dhw_cycle_outdoor_avg": { "name": "Cycle outdoor average" }
+    }
   }
 }
