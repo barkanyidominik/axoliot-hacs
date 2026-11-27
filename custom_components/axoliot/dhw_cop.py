@@ -131,7 +131,8 @@ class DhwCopMonitor:
     def _temperature_of(self, state: State | None) -> float | None:
         if not _usable(state):
             return None
-        if state.domain == "water_heater":
+        # A recorder LazyState objektumának nincs .domain attribútuma, az entity_id-ja viszont van.
+        if state.entity_id.startswith("water_heater."):
             return _float(state.attributes.get("current_temperature"))
         return _float(state.state)
 
@@ -220,12 +221,12 @@ class DhwCopMonitor:
                 end,
                 self.temp_entity,
             )
-        except Exception as err:  # noqa: BLE001 - a recorder hiánya nem végzetes
-            _LOGGER.debug("Recorder lekérdezés sikertelen: %s", err)
+            temps = [
+                t
+                for t in (self._temperature_of(s) for s in states.get(self.temp_entity, []))
+                if t is not None
+            ]
+        except Exception:  # noqa: BLE001 - az ablak-minimum csak pontosítás, nem végzetes
+            _LOGGER.warning("Az ablak-minimum lekérdezése sikertelen", exc_info=True)
             return None
-        temps = [
-            t
-            for t in (self._temperature_of(s) for s in states.get(self.temp_entity, []))
-            if t is not None
-        ]
         return min(temps) if temps else None
